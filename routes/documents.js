@@ -3,7 +3,7 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const upload = require('../middleware/multerConfig');
 const Document = require('../models/document');
-const Group = require('../models/Group');
+const Group = require('../models/group');
 
 router.post('/:groupId/upload', auth, upload.single('file'), async (req, res) => {
   try {

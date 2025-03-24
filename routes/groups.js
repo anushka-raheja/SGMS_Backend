@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-const Group = require('../models/Group');
+const Group = require('../models/group');
 
 // Create new group
 router.post('/', auth, async (req, res) => {
