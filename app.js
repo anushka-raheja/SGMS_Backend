@@ -16,12 +16,17 @@ mongoose.connect(process.env.MONGO_URI)
   .catch(err => console.error('Connection failed:', err));
 
 const app = express();
-
+const allowedOrigins = [
+  'http://localhost:3000', // Local frontend
+  'https://sgms-frontend.onrender.com' // Deployed frontend
+];
 
 app.use(cors({
-  origin: 'http://localhost:3000', // Frontend URL
-  credentials: true
-  }));
+  origin: allowedOrigins,
+  credentials: true, // If using cookies/auth headers
+  methods: 'GET,POST,PUT,DELETE',
+  allowedHeaders: 'Content-Type,Authorization'
+}));
 app.use(express.json());
 
 // Routes
