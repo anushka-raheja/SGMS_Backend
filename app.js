@@ -45,6 +45,10 @@ app.use('/api/documents', documentsRouter);
 const goalsRouter = require('./routes/goals');
 app.use('/api/goals', goalsRouter);
 
+// Add study sessions routes
+const studySessionsRouter = require('./routes/studySessions');
+app.use('/api/study-sessions', studySessionsRouter);
+
 // Only start the server if this file is run directly
 if (require.main === module) {
   const PORT = process.env.PORT || 5001;

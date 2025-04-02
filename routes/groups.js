@@ -161,7 +161,12 @@ router.get('/test', (req, res) => {
         return res.status(404).json({ error: 'Group not found' });
       }
       
-      if (!group.members.includes(req.user._id)) {  // Changed from id to _id
+      // Check if user is a member of the group by comparing IDs as strings
+      const isMember = group.members.some(member => 
+        member._id.toString() === req.user._id.toString()
+      );
+      
+      if (!isMember) {
         return res.status(403).json({ error: 'You are not a member of this group' });
       }
   
