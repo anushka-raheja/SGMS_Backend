@@ -7,7 +7,7 @@ const StudyGoal = require('../models/studygoal');
 router.post('/', auth, async (req, res) => {
   try {
     const goal = new StudyGoal({
-      userId: req.user.id,
+      userId: req.user._id,
       title: req.body.title,
       description: req.body.description,
       deadline: req.body.deadline
@@ -22,7 +22,7 @@ router.post('/', auth, async (req, res) => {
 // Get all goals for the current user
 router.get('/', auth, async (req, res) => {
   try {
-    const goals = await StudyGoal.find({ userId: req.user.id });
+    const goals = await StudyGoal.find({ userId: req.user._id });
     res.json(goals);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch goals' });
@@ -33,7 +33,7 @@ router.get('/', auth, async (req, res) => {
 router.put('/:id', auth, async (req, res) => {
   try {
     const updatedGoal = await StudyGoal.findOneAndUpdate(
-      { _id: req.params.id, userId: req.user.id },
+      { _id: req.params.id, userId: req.user._id },
       { $set: req.body },
       { new: true }
     );

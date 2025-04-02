@@ -10,7 +10,7 @@ const auth = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = { id: decoded.id }; // Now accessible in routes
+    req.user = { _id: decoded.userId }; // Changed to match the token structure
     next();
   } catch (err) {
     res.status(401).json({ 

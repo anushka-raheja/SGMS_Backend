@@ -17,8 +17,8 @@ router.post('/', auth, async (req, res) => {
       description: req.body.description,
       subject: req.body.subject,
       isPublic: req.body.isPublic,
-      admins: [req.user.id],  // Current user becomes admin
-      members: [req.user.id]  // Current user becomes first member
+      admins: [req.user._id],  // Changed from id to _id
+      members: [req.user._id]  // Changed from id to _id
     });
 
     await group.save();
@@ -32,7 +32,7 @@ router.post('/', auth, async (req, res) => {
 // Get groups where current user is a member
 router.get('/my-groups', auth, async (req, res) => {
     try {
-      const groups = await Group.find({ members: req.user.id })
+      const groups = await Group.find({ members: req.user._id })  // Changed from id to _id
         .populate('members', 'name')
         .populate('admins', 'name');
         
@@ -70,14 +70,14 @@ router.get('/test', (req, res) => {
       }
   
       // 3. Check existing membership
-      if (group.members.includes(req.user.id)) {
+      if (group.members.includes(req.user._id)) {  // Changed from id to _id
         return res.status(400).json({ error: 'Already a member' });
       }
   
       // 4. Add user to members
       const updatedGroup = await Group.findByIdAndUpdate(
         req.params.id,
-        { $addToSet: { members: req.user.id } },  // Prevents duplicates
+        { $addToSet: { members: req.user._id } },  // Changed from id to _id
         { new: true, runValidators: true }
       ).populate('members', 'name email')
        .populate('admins', 'name');
@@ -153,13 +153,15 @@ router.get('/test', (req, res) => {
 
   router.get('/:groupId', auth, async (req, res) => {
     try {
-      const group = await Group.findById(req.params.groupId);
+      const group = await Group.findById(req.params.groupId)
+        .populate('members', 'name')
+        .populate('admins', 'name');
       
       if (!group) {
         return res.status(404).json({ error: 'Group not found' });
       }
       
-      if (!group.members.includes(req.user.id)) {
+      if (!group.members.includes(req.user._id)) {  // Changed from id to _id
         return res.status(403).json({ error: 'You are not a member of this group' });
       }
   

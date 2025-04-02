@@ -9,14 +9,13 @@ const User = require('../models/user');
 // @access   Private
 router.get('/me', auth, async (req, res) => {
   try {
-    
     // Get user without password field
-    const user = await User.findById(req.user.id).select('-password');
+    const user = await User.findById(req.user._id).select('-password');
     
     if (!user) {
       return res.status(404).json({ msg: 'User not found' });
     }
-    console.log('Authenticated user ID:', req.user.id); 
+    console.log('Authenticated user ID:', req.user._id); 
     res.json(user);
   } catch (err) {
     console.error(err.message);
