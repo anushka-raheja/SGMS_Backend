@@ -99,11 +99,11 @@ router.get('/test', (req, res) => {
         return res.status(400).json({ error: 'Join directly for public groups' });
       }
       
-      if (group.joinRequests.includes(req.user.id)) {
+      if (group.joinRequests.includes(req.user._id)) {
         return res.status(400).json({ error: 'Request already pending' });
       }
   
-      group.joinRequests.push(req.user.id);
+      group.joinRequests.push(req.user._id);
       await group.save();
       res.json({ message: 'Join request sent to admin' });
       
@@ -116,7 +116,7 @@ router.get('/test', (req, res) => {
   router.get('/admin/requests', auth, async (req, res) => {
     try {
       const requests = await Group.find({
-        admins: req.user.id,
+        admins: req.user._id,
         joinRequests: { $exists: true, $ne: [] }
       }).populate('joinRequests', 'name email');
       
@@ -131,7 +131,7 @@ router.get('/test', (req, res) => {
     try {
       const group = await Group.findById(req.params.groupId);
       
-      if (!group.admins.includes(req.user.id)) {
+      if (!group.admins.includes(req.user._id)) {
         return res.status(403).json({ error: 'Admin access required' });
       }
   

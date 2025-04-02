@@ -13,13 +13,13 @@ router.post('/:groupId/upload', auth, upload.single('file'), async (req, res) =>
       return res.status(404).json({ error: 'Group not found' });
     }
     
-    if (!group.members.includes(req.user.id)) {
-      return res.status(403).json({ error: 'You are not a member of this group' });
+    if (!group.members.includes(req.user._id)) {
+      return res.status(403).json({ error: 'You must be a member of this group to upload documents' });
     }
 
     const document = new Document({
       groupId: req.params.groupId,
-      uploaderId: req.user.id,
+      uploaderId: req.user._id,
       fileName: req.file.originalname,
       filePath: req.file.path,
       fileType: req.file.mimetype,
@@ -42,7 +42,7 @@ router.post('/:groupId/upload', auth, upload.single('file'), async (req, res) =>
 //         return res.status(404).json({ error: 'Group not found' });
 //       }
       
-//       if (!group.members.includes(req.user.id)) {
+//       if (!group.members.includes(req.user._id)) {
 //         return res.status(403).json({ error: 'You are not a member of this group' });
 //       }
   
@@ -72,9 +72,9 @@ router.get('/:groupId/documents', auth, async (req, res) => {
   
       console.log("Group found:", group);
   
-      if (!group.members.includes(req.user.id)) {
+      if (!group.members.includes(req.user._id)) {
         console.log("User is not a member");
-        return res.status(403).json({ error: 'You are not a member of this group' });
+        return res.status(403).json({ error: 'You must be a member of this group to view documents' });
       }
   
       console.log("User is a member, fetching documents...");

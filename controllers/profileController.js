@@ -3,8 +3,8 @@ const User = require('../models/user');
 // Get user profile
 exports.getProfile = async (req, res) => {
   try {
-    console.log('Fetching profile for user ID:', req.user.id);
-    const user = await User.findById(req.user.id).select('-password');
+    console.log('Fetching profile for user ID:', req.user._id);
+    const user = await User.findById(req.user._id).select('-password');
     console.log('Found user:', user);
     
     if (!user) {
@@ -21,12 +21,12 @@ exports.getProfile = async (req, res) => {
 // Update user profile
 exports.updateProfile = async (req, res) => {
   try {
-    console.log('Updating profile for user ID:', req.user.id);
+    console.log('Updating profile for user ID:', req.user._id);
     console.log('Update data:', req.body);
     
     const { name, courses, studyPreferences } = req.body;
     
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user._id);
     if (!user) {
       console.log('User not found for update');
       return res.status(404).json({ message: 'User not found' });
