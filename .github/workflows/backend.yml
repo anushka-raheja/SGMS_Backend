@@ -10,22 +10,39 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        node-version: [18.x]
+        mongodb-version: [6.0]
+
     steps:
     - uses: actions/checkout@v2
     
-    - name: Setup Node.js
+    - name: Setup Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v2
       with:
-        node-version: '18'
+        node-version: ${{ matrix.node-version }}
+        
+    - name: Start MongoDB
+      uses: supercharge/mongodb-github-action@1.8.0
+      with:
+        mongodb-version: ${{ matrix.mongodb-version }}
+        
+    - name: Create uploads directory
+      run: mkdir -p uploads
         
     - name: Install Dependencies
       run: npm ci
+      working-directory: ./server
         
     - name: Run Tests
-      run: npm test -- --passWithNoTests
+      run: npm test
+      working-directory: ./server
       env:
-        JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        JWT_SECRET: ${{ secrets.JWT_SECRET || 'test-secret-key' }}
         MONGODB_URI: ${{ secrets.MONGODB_URI }}
+        MONGODB_TEST_URI: mongodb://localhost:27017/sgms_test
+        NODE_ENV: test
         
     - name: Deploy to Render
       if: github.ref == 'refs/heads/main'

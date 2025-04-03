@@ -8,6 +8,9 @@ const Document = require('../models/document');
 const Group = require('../models/group');
 const User = require('../models/user');
 
+// Increase Jest timeout to 30 seconds for all tests in this file
+jest.setTimeout(30000);
+
 // Set a default MongoDB URI for testing if not provided in environment
 const MONGODB_TEST_URI = process.env.MONGODB_TEST_URI || 'mongodb://localhost:27017/sgms_test';
 
@@ -23,8 +26,14 @@ describe('Document Routes', () => {
       await mongoose.disconnect();
     }
     
-    // Connect to test database
-    await mongoose.connect(MONGODB_TEST_URI);
+    // Connect to test database with more robust options for CI environments
+    await mongoose.connect(MONGODB_TEST_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 20000, // Increase timeout for server selection
+      socketTimeoutMS: 25000, // Increase socket timeout
+      connectTimeoutMS: 25000 // Increase connection timeout
+    });
     
     // Create test directory if it doesn't exist
     const uploadsDir = path.join(__dirname, '../uploads');
@@ -65,7 +74,7 @@ describe('Document Routes', () => {
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
-  });
+  }, 30000); // Also set timeout specifically on beforeAll hook
 
   afterAll(async () => {
     // Clean up test data
@@ -73,7 +82,7 @@ describe('Document Routes', () => {
     await Group.deleteMany({});
     await Document.deleteMany({});
     await mongoose.connection.close();
-  });
+  }, 10000); // Add timeout to afterAll hook as well
 
   describe('POST /api/documents/:groupId/upload', () => {
     it('should upload a document successfully', async () => {
