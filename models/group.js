@@ -4,6 +4,7 @@ const groupSchema = new mongoose.Schema({
     name: { type: String, required: true },
     description: String,
     subject: { type: String, required: true },
+    department: { type: String, default: 'General' },
     isPublic: { type: Boolean, default: false},
     members: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     admins: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
