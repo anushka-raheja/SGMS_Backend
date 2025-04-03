@@ -24,6 +24,7 @@ app.use(express.json());
 
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
+app.use('/api/profile', require('./routes/profile'));
 app.use('/api/groups', require('./routes/groups'));
 app.use('/api/documents', require('./routes/documents'));
 app.use('/api/goals', require('./routes/goals'));

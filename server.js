@@ -7,6 +7,7 @@ const userRoutes = require('./routes/users');
 const groupRoutes = require('./routes/groups');
 const studySessionsRouter = require('./routes/studySessions');
 const goalsRouter = require('./routes/goals');
+const profileRoutes = require('./routes/profile');
 
 dotenv.config();
 
@@ -34,6 +35,7 @@ mongoose.connect(process.env.MONGODB_URI)
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/profile', profileRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/study-sessions', studySessionsRouter);
 app.use('/api/goals', goalsRouter);

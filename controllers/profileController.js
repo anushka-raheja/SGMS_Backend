@@ -22,9 +22,9 @@ exports.getProfile = async (req, res) => {
 exports.updateProfile = async (req, res) => {
   try {
     console.log('Updating profile for user ID:', req.user._id);
-    console.log('Update data:', req.body);
+    console.log('Update data received:', req.body);
     
-    const { name, courses, studyPreferences } = req.body;
+    const { name, email, department, courses, studyPreferences } = req.body;
     
     const user = await User.findById(req.user._id);
     if (!user) {
@@ -34,6 +34,11 @@ exports.updateProfile = async (req, res) => {
 
     // Update fields if provided
     if (name) user.name = name;
+    if (email) user.email = email;
+    if (department !== undefined) {
+      console.log('Updating department to:', department);
+      user.department = department;
+    }
     if (courses) user.courses = courses;
     if (studyPreferences) {
       user.studyPreferences = {
@@ -42,9 +47,14 @@ exports.updateProfile = async (req, res) => {
       };
     }
 
-    await user.save();
-    console.log('Profile updated successfully');
-    res.json(user);
+    const updatedUser = await user.save();
+    console.log('Profile updated successfully:', updatedUser);
+    
+    // Return the updated user without password
+    const userResponse = updatedUser.toObject();
+    delete userResponse.password;
+    
+    res.json(userResponse);
   } catch (error) {
     console.error('Error updating profile:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
