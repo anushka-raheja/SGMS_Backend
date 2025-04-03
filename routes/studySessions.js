@@ -15,9 +15,6 @@ router.get('/', studySessionController.getUserStudySessions);
 // Get all study sessions for a group
 router.get('/group/:groupId', studySessionController.getGroupStudySessions);
 
-// Update study session attendance
-router.patch('/:sessionId/attendance', studySessionController.updateAttendance);
-
 // Update study session status
 router.patch('/:sessionId/status', studySessionController.updateStatus);
 

@@ -28,10 +28,6 @@ const studySessionSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
-  attendees: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  }],
   status: {
     type: String,
     enum: ['scheduled', 'completed', 'cancelled'],

@@ -28,15 +28,13 @@ exports.createStudySession = async (req, res) => {
       date,
       duration,
       group: groupId,
-      createdBy: req.user._id,
-      attendees: [req.user._id] // Creator is automatically added as an attendee
+      createdBy: req.user._id
     });
 
     await studySession.save();
 
-    // Populate creator and attendees
+    // Populate creator
     await studySession.populate('createdBy', 'name');
-    await studySession.populate('attendees', 'name');
 
     res.status(201).json(studySession);
   } catch (error) {
@@ -63,7 +61,6 @@ exports.getGroupStudySessions = async (req, res) => {
     // Find study sessions for this group
     const studySessions = await StudySession.find({ group: groupId })
       .populate('createdBy', 'name')
-      .populate('attendees', 'name')
       .sort({ date: 1 }); // Sort by date ascending (upcoming first)
 
     res.json(studySessions);
@@ -80,15 +77,9 @@ exports.getUserStudySessions = async (req, res) => {
     const groups = await Group.find({ members: req.user._id });
     const groupIds = groups.map(group => group._id);
     
-    // Find study sessions from those groups or where user is an attendee
-    const studySessions = await StudySession.find({
-      $or: [
-        { group: { $in: groupIds } },
-        { attendees: req.user._id }
-      ]
-    })
+    // Find study sessions from those groups
+    const studySessions = await StudySession.find({ group: { $in: groupIds } })
       .populate('createdBy', 'name')
-      .populate('attendees', 'name')
       .populate('group', 'name')
       .sort({ date: 1 });
 
@@ -96,45 +87,6 @@ exports.getUserStudySessions = async (req, res) => {
   } catch (error) {
     console.error('Error fetching user study sessions:', error);
     res.status(500).json({ error: 'Failed to fetch study sessions' });
-  }
-};
-
-// Update study session attendance
-exports.updateAttendance = async (req, res) => {
-  try {
-    const { sessionId } = req.params;
-    const { attending } = req.body;
-    
-    const session = await StudySession.findById(sessionId);
-    if (!session) {
-      return res.status(404).json({ error: 'Study session not found' });
-    }
-
-    // Check if user is a member of the group
-    const group = await Group.findById(session.group);
-    if (!group.members.includes(req.user._id)) {
-      return res.status(403).json({ error: 'You must be a group member to join this session' });
-    }
-
-    if (attending) {
-      // Add user to attendees if not already in the list
-      if (!session.attendees.includes(req.user._id)) {
-        session.attendees.push(req.user._id);
-      }
-    } else {
-      // Remove user from attendees
-      session.attendees = session.attendees.filter(
-        attendee => attendee.toString() !== req.user._id.toString()
-      );
-    }
-
-    await session.save();
-    await session.populate('attendees', 'name');
-    
-    res.json(session);
-  } catch (error) {
-    console.error('Error updating attendance:', error);
-    res.status(500).json({ error: 'Failed to update attendance' });
   }
 };
 
