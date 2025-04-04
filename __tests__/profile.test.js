@@ -4,7 +4,6 @@ const jwt = require('jsonwebtoken');
 const app = require('../app');
 const User = require('../models/user');
 
-// Increase timeout for slower operations
 jest.setTimeout(30000);
 
 describe('Profile Routes', () => {
@@ -13,18 +12,14 @@ describe('Profile Routes', () => {
 
   beforeAll(async () => {
     try {
-      // Disconnect if already connected
       if (mongoose.connection.readyState !== 0) {
         await mongoose.disconnect();
       }
-      
-      // Connect to test database
-      await mongoose.connect(global.__MONGO_URI__ || process.env.MONGODB_URI || 'mongodb://localhost:27017/test-db', {
+            await mongoose.connect(global.__MONGO_URI__ || process.env.MONGODB_URI || 'mongodb://localhost:27017/test-db', {
         useNewUrlParser: true,
         useUnifiedTopology: true
       });
 
-      // Create a test user
       testUser = await User.create({
         name: 'Test User',
         email: 'test.profile@example.com',
@@ -32,7 +27,6 @@ describe('Profile Routes', () => {
         department: 'Computer Science'
       });
 
-      // Generate auth token
       authToken = jwt.sign(
         { userId: testUser._id },
         process.env.JWT_SECRET || 'test-secret',
@@ -46,7 +40,6 @@ describe('Profile Routes', () => {
 
   afterAll(async () => {
     try {
-      // Clean up test data
       await User.deleteMany({});
       await mongoose.connection.close();
     } catch (error) {
@@ -55,7 +48,6 @@ describe('Profile Routes', () => {
     }
   }, 10000);
 
-  // Basic profile retrieval test
   describe('GET /api/profile', () => {
     it('should get user profile when authenticated', async () => {
       const response = await request(app)
@@ -75,7 +67,6 @@ describe('Profile Routes', () => {
     });
 
     it('should return 404 when user not found', async () => {
-      // Create token with non-existent user ID
       const fakeToken = jwt.sign(
         { userId: new mongoose.Types.ObjectId() },
         process.env.JWT_SECRET || 'test-secret',
@@ -90,7 +81,6 @@ describe('Profile Routes', () => {
     });
   });
 
-  // Basic profile update test
   describe('PUT /api/profile', () => {
     it('should update user profile when authenticated', async () => {
       const updateData = {
@@ -138,7 +128,6 @@ describe('Profile Routes', () => {
         .send({ invalidField: 'test' });
 
       expect(response.status).toBe(200);
-      // Should maintain existing data
       expect(response.body).toHaveProperty('name', 'Updated Name');
       expect(response.body).toHaveProperty('department', 'Physics');
     });

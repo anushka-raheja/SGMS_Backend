@@ -6,10 +6,8 @@ const User = require('../models/user');
 const StudySession = require('../models/StudySession');
 const Group = require('../models/group');
 
-// Increase Jest timeout to 30 seconds for all tests in this file
 jest.setTimeout(30000);
 
-// Set a default MongoDB URI for testing if not provided in environment
 const MONGODB_TEST_URI = process.env.MONGODB_TEST_URI || 'mongodb://localhost:27017/sgms_test';
 
 describe('Study Session Routes', () => {
@@ -21,12 +19,10 @@ describe('Study Session Routes', () => {
   let secondUserToken;
 
   beforeAll(async () => {
-    // Disconnect if already connected
     if (mongoose.connection.readyState !== 0) {
       await mongoose.disconnect();
     }
     
-    // Connect to test database with robust options for CI environments
     await mongoose.connect(MONGODB_TEST_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -35,10 +31,8 @@ describe('Study Session Routes', () => {
       connectTimeoutMS: 25000
     });
     
-    // Set JWT secret for tests
     process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret-key';
     
-    // Create test users
     testUser = await User.create({
       name: 'Study Test User',
       email: 'studytest@example.com',
@@ -53,7 +47,6 @@ describe('Study Session Routes', () => {
       department: 'Computer Science & Engineering'
     });
 
-    // Create test group
     testGroup = await Group.create({
       name: 'Test Study Group',
       subject: 'Test Subject',
@@ -61,18 +54,16 @@ describe('Study Session Routes', () => {
       admins: [testUser._id]
     });
 
-    // Create test study session
     testSession = await StudySession.create({
       title: 'Test Study Session',
       description: 'A session for learning about test-driven development',
-      date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // One week from now
-      duration: 120, // 2 hours
+      date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), 
+      duration: 120, 
       group: testGroup._id,
       createdBy: testUser._id,
       status: 'scheduled'
     });
 
-    // Generate auth tokens
     authToken = jwt.sign(
       { userId: testUser._id },
       process.env.JWT_SECRET,
@@ -84,15 +75,14 @@ describe('Study Session Routes', () => {
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
-  }, 30000); // Set timeout for beforeAll
+  }, 30000); 
 
   afterAll(async () => {
-    // Clean up test data
     await User.deleteMany({});
     await Group.deleteMany({});
     await StudySession.deleteMany({});
     await mongoose.connection.close();
-  }, 10000); // Set timeout for afterAll
+  }, 10000); 
 
   describe('GET /api/study-sessions', () => {
     it('should fetch all study sessions for the user', async () => {
@@ -129,7 +119,6 @@ describe('Study Session Routes', () => {
     });
 
     it('should return 403 if user is not a group member', async () => {
-      // Create a new user who is not part of the group
       const nonMemberUser = await User.create({
         name: 'Non Member',
         email: 'nonmember.group@example.com',
@@ -172,7 +161,6 @@ describe('Study Session Routes', () => {
 
     it('should validate required fields', async () => {
       const invalidSession = {
-        // Missing required fields
         description: 'Incomplete session data'
       };
 
@@ -224,7 +212,6 @@ describe('Study Session Routes', () => {
     });
 
     it('should return 403 if user is not the creator or admin', async () => {
-      // Create a new group where second user is not an admin
       const newGroup = await Group.create({
         name: 'Another Test Group',
         subject: 'Another Subject',
@@ -232,7 +219,6 @@ describe('Study Session Routes', () => {
         admins: [testUser._id]
       });
 
-      // Create a session in that group
       const newSession = await StudySession.create({
         title: 'Admin Test Session',
         description: 'Testing admin permissions',

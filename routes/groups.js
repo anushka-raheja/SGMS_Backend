@@ -16,6 +16,7 @@ router.post('/', auth, async (req, res) => {
       name: req.body.name,
       description: req.body.description,
       subject: req.body.subject,
+      department: req.body.department || 'General',  // Include department field
       isPublic: req.body.isPublic,
       admins: [req.user._id],  // Changed from id to _id
       members: [req.user._id]  // Changed from id to _id

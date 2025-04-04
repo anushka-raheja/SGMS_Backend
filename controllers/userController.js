@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 
 // Sign-up function
 exports.signUp = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, department } = req.body;
   
   // Validate required fields
   if (!name || !email || !password) {
@@ -15,7 +15,12 @@ exports.signUp = async (req, res) => {
     if (userExists) {
       return res.status(400).json({ message: 'User already exists' });
     }
-    const newUser = new User({ name, email, password });
+    const newUser = new User({ 
+      name, 
+      email, 
+      password,
+      department: department || 'Not specified'  // Include department field
+    });
     await newUser.save();
 
     // Generate JWT token
@@ -30,7 +35,8 @@ exports.signUp = async (req, res) => {
       user: {
         _id: newUser._id,
         name: newUser.name,
-        email: newUser.email
+        email: newUser.email,
+        department: newUser.department  // Include department in response
       },
       message: 'User created successfully'
     });
